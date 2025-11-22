@@ -1,14 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import LoginForm from '../LoginForm/LoginForm';
 import './NavBar.css';
 
 const NavBar = () => {
-  //console.log("showLogin", showLogin);
-  
-  
   const [showLogin, setShowLogin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Verifica si hay token en localStorage
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+
   const handleLoginClick = () => setShowLogin(true);
-  const handleCloseLogin = () => setShowLogin(false);
+
+  const handleCloseLogin = () => {
+    setShowLogin(false);
+    // Actualiza estado después del login
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    alert("Has cerrado sesión");
+  };
 
   return (
     <>
@@ -35,7 +53,11 @@ const NavBar = () => {
               </li>
             </ul>
 
-            <button className="btn btn-login" onClick={handleLoginClick}>Login</button>
+            {isLoggedIn ? (
+              <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
+            ) : (
+              <button className="btn btn-login" onClick={handleLoginClick}>Login</button>
+            )}
           </div>
         </div>
       </nav>
