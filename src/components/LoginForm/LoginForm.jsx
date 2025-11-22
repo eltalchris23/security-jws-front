@@ -5,19 +5,32 @@ import { useEffect, useState } from 'react';
 import { login } from '../../services/authService'
 //import { useNavigate } from 'react-router-dom';
 
-const LoginForm = ({ show, onClose}) => {
-    //console.log ("show", show, "onClose", onClose);
+const LoginForm = ({ show, onClose }) => {
 
     const [visible, setVisible] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-  //  const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState("");
+
+    //  const navigate = useNavigate();
+
+    useEffect(() => {
+        if (errorMessage) {
+          const timer = setTimeout(() => {
+            setErrorMessage("");
+          }, 1000); // 2000 ms = 2 segundos
+      
+          // Limpia el timeout si el componente se desmonta o errorMessage cambia
+          return () => clearTimeout(timer);
+        }
+      }, [errorMessage]);
+      
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const data = await login(username,password);
+            const data = await login(username, password);
 
             if (data.success) {
                 localStorage.setItem("token", data.token);
@@ -25,18 +38,18 @@ const LoginForm = ({ show, onClose}) => {
 
                 onClose();
             } else {
-                alert("Error: " + data.error);
+                setErrorMessage(data.error || "Error de autenticacion");
             }
 
         } catch (error) {
             console.error(error);
-            alert ("Error en el servidor o credenciales incorrectas");
+            setErrorMessage("Error en el servidor o credenciales incorrectas");
         }
-        
+
     };
 
     // Cuando show cambia, manejamos la animación
-   useEffect(() => {
+    useEffect(() => {
         if (show) {
             setVisible(true);
         } else {
@@ -53,6 +66,13 @@ const LoginForm = ({ show, onClose}) => {
             <div className="login-container">
                 <button className="close-btn" onClick={onClose}>×</button>
                 <h2>Iniciar Sesión</h2>
+
+                {errorMessage && (
+                    <div className="error-message">
+                        {errorMessage}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit}>
                     <input
                         type="text"
