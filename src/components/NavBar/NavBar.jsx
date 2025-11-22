@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import LoginForm from '../LoginForm/LoginForm';
+import { isTokenExpired, logout } from '../../services/authToken';
 import './NavBar.css';
 
 const NavBar = () => {
@@ -7,25 +8,35 @@ const NavBar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Verifica si hay token en localStorage
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    const checkToken = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const expired = await isTokenExpired(token);
+        setIsLoggedIn(!expired);
+        if (expired) localStorage.removeItem("token");
+      } else {
+        setIsLoggedIn(false);
+      }
+    };
+    checkToken();
   }, []);
-
 
   const handleLoginClick = () => setShowLogin(true);
 
-  const handleCloseLogin = () => {
-    setShowLogin(false);
-    // Actualiza estado después del login
+  const handleLoginSuccess = async () => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    if (token) {
+      const expired = await isTokenExpired(token);
+      setIsLoggedIn(!expired);
+    } else {
+      setIsLoggedIn(false);
+    }
+    setShowLogin(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout();
     setIsLoggedIn(false);
-    alert("Has cerrado sesión");
   };
 
   return (
@@ -54,18 +65,21 @@ const NavBar = () => {
             </ul>
 
             {isLoggedIn ? (
-              <button className="btn btn-logout" onClick={handleLogout}>Logout</button>
+              <button className="btn btn-logout" onClick={handleLogout}>
+                Logout
+              </button>
             ) : (
-              <button className="btn btn-login" onClick={handleLoginClick}>Login</button>
+              <button className="btn btn-login" onClick={handleLoginClick}>
+                Login
+              </button>
             )}
           </div>
         </div>
       </nav>
-      
-      {/* Formulario de login con animación */}
-      <LoginForm show={showLogin} onClose={handleCloseLogin} />
-    </>
-  )
-}
 
-export default NavBar
+      <LoginForm show={showLogin} onClose={() => setShowLogin(false)} onLoginSuccess={handleLoginSuccess} />
+    </>
+  );
+};
+
+export default NavBar;
