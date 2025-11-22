@@ -1,0 +1,28 @@
+/* Navbar.css */
+.navbar-custom {
+  background-color: #0d6efd; /* azul profesional */
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link,
+.navbar-custom .navbar-toggler-icon,
+.navbar-custom .dropdown-item {
+  color: white;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .dropdown-item:hover {
+  color: #d1e0ff; /* azul claro al pasar el mouse */
+}
+
+.navbar-custom .btn-login {
+  color: #0d6efd;
+  background-color: white;
+  border: 1px solid white;
+}
+
+.navbar-custom .btn-login:hover {
+  background-color: #d1e0ff;
+  border-color: #d1e0ff;
+  color: #0d6efd;
+}
